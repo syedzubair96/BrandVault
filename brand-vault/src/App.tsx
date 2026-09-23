@@ -1,14 +1,12 @@
-import "./App.css";
+import { RouterProvider } from "react-router";
+import { AuthProvider } from "./auth/AuthProvider";
+import { router } from "./router";
 
 function App() {
   return (
-    <>
-      <div className="flex min-h-screen items-center justify-center bg-slate-100">
-        <h1 className="text-2xl font-bold text-blue-600 underline">
-          Hello World
-        </h1>
-      </div>
-    </>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   );
 }
 
