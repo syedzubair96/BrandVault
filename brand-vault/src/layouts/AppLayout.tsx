@@ -1,6 +1,5 @@
 import { FolderOpen, LogOut, Palette, type LucideIcon } from "lucide-react";
 import { NavLink, Outlet } from "react-router";
-import { useAuth } from "../auth/useAuth";
 import { useLogout } from "../auth/useLogout";
 
 interface NavItem {
