@@ -18,7 +18,6 @@ const itemBase =
   "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors";
 
 export function AppLayout() {
-  const { user } = useAuth();
   const logout = useLogout();
 
   return (
