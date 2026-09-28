@@ -1,5 +1,5 @@
-import { AlertTriangle, CheckCircle2, Palette } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Palette } from "lucide-react";
+import { useEffect, useState } from "react";
 import { listBrandKits, type BrandKit } from "../api/brandKit";
 import { BrandKitForm } from "../components/brand-kit/BrandKitForm";
 import { Loader } from "../components/Loader";
