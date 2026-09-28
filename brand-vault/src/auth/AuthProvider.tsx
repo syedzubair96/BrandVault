@@ -1,52 +1,54 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
-import { AuthContext, type AuthUser } from "./auth-context";
+import { useCallback, useEffect, useMemo, useSyncExternalStore, type ReactNode } from "react";
+import * as authApi from "../api/auth";
+import { AuthContext } from "./auth-context";
+import { getTokenExpiry } from "./jwt";
+import { sessionStore } from "./session";
 
-const STORAGE_KEY = "brandvault.session";
-
-interface Session {
-  token: string;
-  user: AuthUser;
-}
-
-function readSession(): Session | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Session) : null;
-  } catch {
-    return null;
-  }
-}
-
-async function mockLogin(email: string, password: string): Promise<Session> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  if (!email || !password) {
-    throw new Error("Email and password are required.");
-  }
-  return { token: "mock-token", user: { email } };
-}
+// setTimeout overflows above ~24.8 days.
+const MAX_TIMER_MS = 2_147_483_647;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(readSession);
+  const session = useSyncExternalStore(sessionStore.subscribe, sessionStore.get);
+  const refreshToken = session?.refreshToken;
+
+  useEffect(() => {
+    if (!refreshToken) return;
+    const expiry = getTokenExpiry(refreshToken);
+    if (expiry === null) return;
+    const timer = window.setTimeout(
+      () => sessionStore.clear("expired"),
+      Math.min(Math.max(expiry - Date.now(), 0), MAX_TIMER_MS),
+    );
+    return () => window.clearTimeout(timer);
+  }, [refreshToken]);
 
   const login = useCallback(async (email: string, password: string) => {
-    const loginResponse = await mockLogin(email, password);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(loginResponse));
-    setSession(loginResponse);
+    sessionStore.set(await authApi.login(email, password));
   }, []);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    setSession(null);
+  const register = useCallback(async (input: authApi.RegisterInput) => {
+    sessionStore.set(await authApi.register(input));
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // The local session is cleared regardless; the refresh token expires on its own.
+    } finally {
+      sessionStore.clear();
+    }
   }, []);
 
   const value = useMemo(
     () => ({
       user: session?.user ?? null,
-      token: session?.token ?? null,
+      isAuthenticated: session !== null,
       login,
+      register,
       logout,
     }),
-    [session, login, logout],
+    [session, login, register, logout],
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;

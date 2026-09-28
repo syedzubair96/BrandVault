@@ -48,7 +48,7 @@ export function AppLayout() {
         <div className="border-t border-slate-200 p-3">
           <button
             type="button"
-            onClick={logout}
+            onClick={() => void logout()}
             className={`${itemBase} text-slate-600 hover:bg-red-50 hover:text-red-700`}
           >
             <LogOut className="size-4" aria-hidden />

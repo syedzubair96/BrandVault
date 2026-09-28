@@ -1,9 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { useLocation, useNavigate, type Location } from "react-router";
+import { Link, useLocation, useNavigate, type Location } from "react-router";
 import { useAuth } from "../auth/useAuth";
+import { sessionStore } from "../auth/session";
 
-const DEMO_EMAIL = "demo@brandvault.dev";
-const DEMO_PASSWORD = "Demo1234!";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function LoginPage() {
@@ -16,32 +15,35 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice] = useState(() =>
+    sessionStore.consumeLogoutReason() === "expired"
+      ? "Your session has expired. Please sign in again."
+      : null,
+  );
   const [submitting, setSubmitting] = useState(false);
 
-  async function signIn(emailValue: string, passwordValue: string) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError(null);
+
+    const emailValue = email.trim();
     if (!EMAIL_PATTERN.test(emailValue)) {
       setError("Enter a valid email address.");
       return;
     }
-    if (!passwordValue) {
+    if (!password) {
       setError("Enter your password.");
       return;
     }
 
     setSubmitting(true);
     try {
-      await login(emailValue, passwordValue);
+      await login(emailValue, password);
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed.");
       setSubmitting(false);
     }
-  }
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    void signIn(email.trim(), password);
   }
 
   return (
@@ -54,7 +56,13 @@ export function LoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+        {notice && !error && (
+          <p role="status" className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            {notice}
+          </p>
+        )}
+
+        <form onSubmit={(event) => void handleSubmit(event)} noValidate className="space-y-4">
           <div>
             <label
               htmlFor="email"
@@ -105,14 +113,12 @@ export function LoginPage() {
             {submitting ? "Signing in…" : "Sign in"}
           </button>
 
-          <button
-            type="button"
-            disabled={submitting}
-            onClick={() => void signIn(DEMO_EMAIL, DEMO_PASSWORD)}
-            className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          <Link
+            to="/register"
+            className="block w-full rounded-lg border border-slate-300 px-4 py-2 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50"
           >
-            Continue as demo
-          </button>
+            Create an account
+          </Link>
         </form>
       </div>
     </div>

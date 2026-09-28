@@ -3,13 +3,17 @@ import { AppLayout } from "./layouts/AppLayout";
 import { BrandKitPage } from "./pages/BrandKitPage";
 import { LibraryPage } from "./pages/LibraryPage";
 import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { PublicOnlyRoute } from "./routes/PublicOnlyRoute";
 
 export const router = createBrowserRouter([
   {
     element: <PublicOnlyRoute />,
-    children: [{ path: "/login", element: <LoginPage /> }],
+    children: [
+      { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage /> },
+    ],
   },
   {
     element: <ProtectedRoute />,
