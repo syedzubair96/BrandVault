@@ -120,7 +120,7 @@ export function LibraryPage() {
           <button
             type="button"
             onClick={() => setNewFolderParent(null)}
-            disabled={!myFolders || myFolders.length === 0}
+            disabled={!myFolders}
             aria-label="New folder"
             title="New folder"
             className="rounded-lg p-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
@@ -136,7 +136,7 @@ export function LibraryPage() {
             </div>
           )}
 
-          {myFolders && myFolders.length > 0 && tree.length === 0 && (
+          {myFolders && tree.length === 0 && (
             <div className="flex flex-col items-center px-2 py-10 text-center">
               <p className="text-sm text-slate-500">No folders yet.</p>
               <button
