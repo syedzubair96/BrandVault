@@ -1,5 +1,4 @@
 import {
-  AlertTriangle,
   ChevronRight,
   FolderPlus,
   FolderSearch,
@@ -17,11 +16,6 @@ import { DeletedFolders } from "../components/library/DeletedFolders";
 import { FolderTree } from "../components/library/FolderTree";
 import { buildFolderTree, flattenTree, folderPath } from "../components/library/tree-utils";
 import toast from "react-hot-toast";
-
-type LoadmyFolders =
-  | { status: "loading" }
-  | { status: "error"; message: string }
-  | { status: "ready"; folders: Folder[] };
 
 function parseFolderId(value: string | undefined): number | null {
   if (!value) return null;
@@ -56,7 +50,7 @@ export function LibraryPage() {
   const getFolders = () => {
     listFolders()
       .then((folders) => setMyFolders(folders))
-      .catch((err: unknown) => {
+      .catch(() => {
         toast.error("Error fetching folders. Please try again.");
       });
   };
