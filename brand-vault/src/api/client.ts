@@ -6,7 +6,7 @@ import { ApiError, messageFromBody, NETWORK_ERROR_STATUS } from "./errors";
 const REFRESH_MARGIN_MS = 30_000;
 
 export interface RequestOptions {
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   auth?: boolean;
   signal?: AbortSignal;
